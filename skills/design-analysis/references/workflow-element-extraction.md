@@ -2,7 +2,9 @@
 title: 第二步：区域与元素提取
 impact: CRITICAL
 impactDescription: 文字、图片、布局、层级四者必须逐一准确记录，不允许出错或遗漏
-tags: workflow, element-extraction, analysis, critical 
+tags: workflow, element-extraction, analysis, critical
+version: 1.1.0
+updatedAt: 2026-03-23
 ---
 
 # 第二步：区域与元素提取
@@ -45,6 +47,47 @@ mcp__mastergo-magic-mcp__mcp__getDsl({
   fileId: "<文件ID>",
   layerId: "<图层ID>"
 })
+```
+
+### ⚠️ 强制要求：必须读取完整数据文件（新增）
+
+**禁止仅依赖控制台输出！控制台可能截断数据！**
+
+**问题背景**：
+- 分析脚本通常有输出限制（如只显示前15条）
+- 控制台输出不完整会导致遗漏
+- 必须读取保存的完整 JSON 文件
+
+**强制步骤**：
+
+1. **运行分析脚本，保存数据到 JSON 文件**
+   ```bash
+   python scripts/analyze-mastergo-dsl.py
+   # 数据保存到 openspec/output/region_details.json
+   ```
+
+2. **使用 Read 工具读取完整的 JSON 文件**
+   ```
+   Read("openspec/output/region_details.json")
+   ```
+
+3. **统计元素数量，确认无遗漏**
+   - 文字节点总数：___ 个
+   - 数值组总数：___ 组
+   - Tab 总数：___ 个
+
+4. **逐项核对，确保所有元素都已记录**
+
+**错误示例**：
+```
+❌ 错误：只看脚本控制台输出
+  脚本输出：texts_sorted[:15]  # 只显示前15条
+  结果：遗漏后15条文字
+
+✅ 正确：读取完整 JSON 文件
+  Read("openspec/output/region_details.json")
+  统计：文字节点总数 30 个
+  确认：已记录所有 30 个文字节点
 ```
 
 ### ⚠️ 子元素归属验证（必须执行）
