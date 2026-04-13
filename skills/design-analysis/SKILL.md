@@ -1,21 +1,17 @@
 ---
 name: design-analysis
-description: 通用设计稿分析技能。当需要分析设计稿（.pen、Figma、MasterGo、本地图片）并产出 UI 分析清单供开发或验收使用时，应使用此技能。
+description: 通用设计稿分析技能。分析设计稿（.pen、Figma、MasterGo、本地图片）并产出 UI 分析清单供开发实现或验收对照时，使用此技能。
 metadata:
-  version: 1.8.0
-  updatedAt: 2026-03-23
+  version: 1.23.0
+  updatedAt: 2026-04-08
 ---
+
 # 设计稿分析
 
 ## 使用时机
 
-在以下情况使用此技能：
-
-- 分析设计稿（`.pen`、Figma 链接、MasterGo 链接、其它设计图或标注），梳理界面结构、样式、元素
-- 分析本地图片（设计稿截图、UI 图片），通过视觉识别提取信息
+- 分析设计稿（`.pen`、Figma 链接、MasterGo 链接、本地图片）
 - 产出 UI 分析清单文档，供开发实现或验收对照
-
-不限定阶段：可在写提案前、提案中、或单独进行「只分析不写提案」。
 
 ---
 
@@ -23,27 +19,29 @@ metadata:
 
 **按「从上到下、从左到右、从外到里」顺序分析，逐条准确记录文字、图片、布局、层级四类重中之重。**
 
-**输出后必须检查：区域顺序与设计稿一致、布局数据精准无误。若存在问题，必须补充和修正。**
+### 禁止行为
 
-详见：
-- `references/analysis-order.md` - 分析顺序（必守）
-- `references/analysis-priorities.md` - 四类重中之重
-
----
-
-## ⚠️ 强制执行机制
-
-> **规范写得再清楚，如果执行者没有建立强制执行机制，就会被绕过。**
-
-**必须遵守 `references/enforcement-mechanism.md` 中的强制执行机制。**
-
-关键禁止行为：
-- ❌ 凭经验推断图表类型 → ✅ 读取节点 name 字段确认实际类型
-- ❌ 凭经验推断子元素归属 → ✅ 用 MCP 工具读取实际 children 数据
-- ❌ 仅依赖控制台输出 → ✅ 读取完整 JSON 文件
-- ❌ 假设数值组数量 → ✅ 统计并验证所有数值组
-
-**详细检查清单见 `references/enforcement-mechanism.md`。**
+- ❌ 凭经验推断图表类型 → ✅ 读取节点 name 字段确认
+- ❌ 凭经验推断子元素归属 → ✅ 用工具读取实际 children 数据
+- ❌ 虚构模块 → ✅ 在设计稿中验证每个模块存在
+- ❌ 假设「已经够了」→ ✅ 检查所有子节点坐标和数量
+- ❌ 使用 readDepth: 1 或 2 → ✅ 强制使用 readDepth: 4+
+- ❌ 不检查组件状态字段 → ✅ 分析阶段检查 enabled/visible 字段
+- ❌ 虚构表格列 → ✅ 逐列读取设计稿实际列名和状态
+- ❌ **🔴🔴🔴 凭经验跳过表格列** → ✅ **必须系统性遍历所有列节点，逐一读取表头内容**
+- ❌ **🔴🔴🔴 遗漏表格列** → ✅ **必须验证列宽总和 ≈ 表格宽度**
+- ❌ **省略层级结构** → ✅ **每个区域必须包含 `#### 层级` 小节**
+- ❌ **凭视觉判断元素归属** → ✅ **验证元素坐标是否在区域边界内**
+- ❌ **区域名称与标题不一致** → ✅ **区域名称必须与区域内文字标题一致**
+- ❌ **合并独立卡片为左右布局** → ✅ **独立卡片作为独立区域**
+- ❌ **省略图表类型子章节** → ✅ **图表区域必须包含图表类型、图表数据、图表文字、图表布局四个子章节**
+- ❌ **未读取 INSTANCE 组件内部标题** → ✅ **MasterGo 标题必须从 INSTANCE 内部 TEXT 节点提取**
+- ❌ **仅凭 y 坐标相同就合并区域** → ✅ **左右并排 GROUP 必须检查是否有独立标题 INSTANCE**
+- ❌ **⚠️⚠️⚠️ 仅读取顶层 GROUP 节点** → ✅ **MasterGo 必须递归遍历 INSTANCE 内部（深度至少 4 层）**
+- ❌ **⚠️⚠️⚠️ 层级结构中出现空 Tab 列表** → ✅ **必须提取 INSTANCE 内部 Tab 的实际文字，无文字时明确说明**
+- ❌ **⚠️⚠️⚠️ 遗漏年份选择器** → ✅ **必须搜索 INSTANCE 内部「年」「月」「日」关键词**
+- ❌ **🔴 层级结构中显示 `enabled: false` 元素** → ✅ **禁用元素不显示在层级结构中，只记录可见组件**
+- ❌ **🔴 文档中记录禁用列（`enabled: false`）** → ✅ **禁用列不在文档中记录，只记录 `enabled: true` 的可见列**
 
 ---
 
@@ -53,26 +51,22 @@ metadata:
 |--------|------|------|
 | UI 分析清单 | `openspec/ui-checklist/{序号}-{模块名}.md` | 开发时精确还原；验收时对照基准 |
 
-### 示例文件
+### 命名规则
 
-参考示例：`assets/example-ui-checklist.md`
+- 序号：三位数字递增（001, 002...）
+- 模块名：英文 kebab-case（如 `login-page`）
 
-### 命名约束
+### ⚠️ 输出文档不包含的内容
 
-| 约束项 | 规范 | 示例 |
-|--------|------|------|
-| 序号 | 三位数字递增，不可重复 | `001`、`002`...`010` |
-| 模块名 | 英文 kebab-case | `login-page`、`dashboard-header` |
-| 文件名 | `{序号}-{模块名}.md` | `001-login-page.md` |
+以下内容是**分析过程中的工具**，用于确保分析准确性，但**不需要在最终输出文档中显示**：
 
-**文件创建规则：**
-1. 查看 `openspec/ui-checklist/` 目录已有文件
-2. 新序号 = 现有最大序号 + 1（空目录从 `001` 开始）
-3. 序号复用：仅当最后一个序号被删除时可复用，中间序号删除后永久空置
+| 内容 | 用途 | 处理方式 |
+|------|------|----------|
+| 区域边界验证表 | 分析阶段验证元素归属 | 分析时使用，发现问题及时修正，不输出到文档 |
+| 校验详细记录表格 | 校验过程记录 | 执行校验，发现问题及时修正，只在校验记录中简要说明已通过项 |
+| 禁用列（`enabled: false`） | 表格列分析 | 分析时检查，禁用列不在文档中记录，只记录可见列 |
 
-## 必须遵守
-- 不允许修改已存在的文件，必须创建新文件
-- **必须严格按照 `references/output-analysis-checklist.md` 模板生成文档**，包含所有章节（一~九），不得遗漏或使用自创格式
+**输出文档只需在校验记录中简要列出已通过的校验项即可，无需详细展开。**
 
 ---
 
@@ -80,80 +74,144 @@ metadata:
 
 根据设计稿类型选择分析路径：
 
-### 路径 A：结构化设计稿（.pen / Figma / MasterGo）
+| 设计稿类型 | 工具 | 详见 |
+|-----------|------|------|
+| `.pen` 文件 | Pencil MCP | `05-tools-guide.md` |
+| Figma 链接 | Figma MCP | `05-tools-guide.md` |
+| MasterGo 链接 | MasterGo MCP | `05-tools-guide.md` |
+| 本地图片 | 视觉识别 | `05-tools-guide.md` |
 
-1. **建立布局 Map** - 获取设计稿结构、页面状态、整体尺寸、区域划分
-   - 详见 `references/workflow-layout-map.md`
-   - 工具使用详见 `references/tools-design-guidelines.md`
+### 步骤概览
 
-2. **区域与元素提取** - 对每个区域按「从外到里」逐项提取
-   - 详见 `references/workflow-element-extraction.md`
+1. **建立布局 Map** → `02-workflow-main.md`
+   - ⚠️ **🔴 强制：记录每个区域的边界值（左边界、右边界）**
+2. **区域与元素提取** → `02-workflow-main.md`
+   - ⚠️ 强制 readDepth: 4+
+   - ⚠️ 检查 enabled/visible 状态字段
+   - ⚠️ **🔴 强制：每个子元素必须验证 x 坐标是否在区域边界内**
+   - ⚠️ 左右布局专项分析（宽度比例、固定/自适应）
+   - ⚠️ **MasterGo: 必须读取 INSTANCE 组件内部标题**
+   - ⚠️ **⚠️⚠️⚠️ MasterGo: 必须递归遍历 INSTANCE 内部提取年份选择器、Tab 文字等**
+   - ⚠️ **左右并排 GROUP 必须检查是否有独立标题**
+3. **样式规范汇总** → `02-workflow-main.md`
+4. **输出 UI 分析清单** → `03-output-template.md`
+5. **执行校验** → `04-verification.md`
+6. **清理临时文件** → `02-workflow-main.md`
 
-3. **样式规范汇总** - 汇总颜色、字体、圆角、间距、阴影等
-   - 详见 `references/workflow-style-summary.md`
+---
 
-4. **输出 UI 分析清单** - **必须严格按照模板输出文档**
-   - 模板路径：`references/output-analysis-checklist.md`
-   - **生成后必须执行校验**：详见 `references/output-analysis-checklist.md`「生成后校验」
-   - 校验零到校验十逐项执行，不通过必须修正后再继续
+## 🔴🔴🔴 强制步骤：区域边界验证（第一步必须执行）
 
-5. **区域检查与对比完善** - 按模块区域逐一检查对比
-   - 详见 `references/workflow-module-verification.md`
+**此步骤不可跳过！必须在建立布局 Map 时立即执行！**
 
-6. **清理临时文件** - 校验通过后清理 `openspec/output/` 目录
+### 为什么必须执行此步骤？
 
-### 路径 B：本地图片（设计稿截图 / UI 图片）
+**真实错误案例（2026-04-08）**：年份选择器归属错误
 
-1. **图像识别** - 使用视觉能力读取图片
-   - 分析顺序遵守 `references/analysis-order.md`
-   - 详见 `references/tools-design-guidelines.md`「本地图片处理」
+| 问题 | 错误操作 | 正确操作 |
+|------|----------|----------|
+| 年份选择器 x=546 | 凭视觉直觉判断属于右侧区域 | 验证坐标：160 ≤ 546 < 682，属于左侧区域 |
 
-2. **结构化整理** - 将识别信息按区域整理，建立布局 Map
-   - 参考 `references/workflow-layout-map.md`
+**后果**：文档将元素错误归类，导致前端开发实现错误的组件位置
 
-3. **样式规范汇总** - 提取颜色、字体、圆角、间距等
-   - 详见 `references/workflow-style-summary.md`
+### 区域边界验证模板（分析阶段必填）
 
-4. **输出 UI 分析清单** - 按模板输出文档
-   - 模板路径：`references/output-analysis-checklist.md`
+**在建立布局 Map 时，必须填写以下表格：**
 
-5. **区域检查与对比完善** - 按模块区域逐一检查对比
-   - 详见 `references/workflow-module-verification.md`
+```markdown
+## 区域边界验证表（分析阶段必填）
 
-6. **清理临时文件** - 校验通过后清理 `openspec/output/` 目录
+| 区域名称 | x | width | 左边界 | 右边界 |
+|----------|---|-------|--------|--------|
+| 区域1 | ___ | ___ | ___ | ___ |
+| 区域2 | ___ | ___ | ___ | ___ |
+| 区域3 | ___ | ___ | ___ | ___ |
+
+边界附近元素（x 在某区域边界±50px 范围内）：
+- 元素名称：x=___，验证 ___ ≤ x < ___ → 属于区域___
+```
+
+### 验证公式
+
+```
+元素归属正确的条件：
+  区域.x ≤ 元素.x < 区域.x + 区域.width
+
+简化判断：
+  元素.x >= 区域左边界 AND 元素.x < 区域右边界
+```
+
+### 强制规则（违反即错误）
+
+- [ ] **第一步必须记录所有区域的边界值**
+- [ ] **边界附近的元素（x 在边界±50px）必须重点验证**
+- [ ] **每个子元素归属必须通过坐标验证，禁止凭视觉直觉判断**
+
+---
+
+## 强制执行机制
+
+**规范写得再清楚，如果没有强制执行机制，就会被绕过。**
+
+详见 `04-verification.md` 获取完整校验清单（校验零到校验二十五 + 截图交叉验证）。
+
+### 关键校验项（必须执行）
+
+| 校验项 | 目的 | 常见遗漏 |
+|--------|------|----------|
+| **校验零** | **区域数量校验** | **遗漏整个区域** |
+| 校验三 | 标题文字一致性 | 文字内容不一致 |
+| 校验四 | 模块存在性验证 | 虚构模块 |
+| 校验六 | 表格列标题专项（含状态字段） | 禁用列误认为可见、虚构列 |
+| 校验九 | 子元素归属校验 | 子元素归属错误 |
+| 校验十 | 层级结构校验 | 层级嵌套错误 |
+| 校验十四 | 嵌套容器同名校验 | 父子/兄弟节点同名导致遗漏 |
+| 校验十五 | 信息行/列数量校验 | 多行信息区只记录第一行 |
+| 校验十六 | 深度遍历完整性校验 | readDepth 不足导致遗漏 |
+| 校验十八 | 组件状态字段校验 | enabled: false 组件误认为可见 |
+| 校验十九 | 层级结构必填校验 | 区域缺少 #### 层级 小节 |
+| 校验二十 | 子元素坐标归属校验 | 元素坐标不在归属区域内 |
+| 校验二十一 | 图表区域格式校验 | 图表区域缺少图表类型等子章节 |
+| 校验二十二 | INSTANCE 组件标题提取校验 | MasterGo 标题未从 INSTANCE 内部提取 |
+| 校验二十三 | ⚠️⚠️⚠️ INSTANCE 内部元素完整性校验 | ⚠️⚠️⚠️ 遗漏年份选择器、Tab 文字等 |
+| 校验二十四 | 左右布局独立性校验 | 独立卡片被错误合并为一个区域 |
+| **校验二十五** | **🔴🔴🔴 区域边界验证表必填校验** | **第一步未记录区域边界值** |
+| 截图交叉验证 | 直观验证文档与设计稿一致 | 虚构元素未被发现 |
 
 ---
 
 ## 快速参考
 
-### ⚠️ 强制执行机制
-- `references/enforcement-mechanism.md` - 强制执行机制、禁止行为、检查清单模板
+### 分析规则
 
-### Analysis Rules
-- `references/analysis-order.md` - 分析顺序
-- `references/analysis-priorities.md` - 四类重中之重
+| 文件 | 内容 |
+|------|------|
+| `01-analysis-basics.md` | 分析顺序、四类重中之重、常见遗漏检查点 |
 
-### Workflow Rules
-- `references/workflow-layout-map.md` - 第一步：建立布局 Map
-- `references/workflow-element-extraction.md` - 第二步：区域与元素提取
-- `references/workflow-style-summary.md` - 第三步：样式规范汇总
-- `references/workflow-output-checklist.md` - 第四步：输出文档要求
-- `references/workflow-module-verification.md` - 第五步：区域检查与对比完善
+### 工作流程
 
-### Output Rules
-- `references/output-analysis-checklist.md` - UI 分析清单文档模板
+| 文件 | 内容 |
+|------|------|
+| `02-workflow-main.md` | 完整工作流程（第一步到第五步） |
+| `03-output-template.md` | UI 分析清单文档模板 |
+| `04-verification.md` | 校验清单（校验零到校验二十五 + 截图交叉验证） |
 
-### Implementation Rules
-- `references/implementation-guidelines.md` - 主流网页设计常识
-- `references/implementation-common-errors.md` - 常见错误模式
+### 工具指南
 
-### Checklist Rules
-- `references/checklist-common-misses.md` - 常见遗漏检查点
+| 文件 | 内容 |
+|------|------|
+| `05-tools-guide.md` | Pencil / Figma / MasterGo MCP 工具使用 |
 
-### Tools Rules
-- `references/tools-design-guidelines.md` - 设计稿工具使用指南
+### 实现建议
 
-### 工具脚本
+| 文件 | 内容 |
+|------|------|
+| `06-implementation.md` | 主流网页设计常识、常见错误模式 |
+
+---
+
+## 工具脚本
+
 | 脚本 | 路径 | 用途 |
 |------|------|------|
 | MasterGo DSL 分析器 | `scripts/mastergo-dsl-analyzer.py` | 统计主要区域、提取文字和样式 |
@@ -161,4 +219,35 @@ metadata:
 
 ---
 
-## 相关规范
+## 示例文件
+
+参考示例：`assets/example-ui-checklist.md`
+
+---
+
+## grep 搜索模式
+
+快速定位 references 文件中的内容：
+
+```bash
+# 分析顺序
+grep -n "从上到下\|从左到右\|从外到里" references/01-analysis-basics.md
+
+# 四类重中之重
+grep -n "文字\|图片\|布局\|层级" references/01-analysis-basics.md
+
+# 校验清单
+grep -n "校验零\|校验三\|校验九\|校验十\|校验十四\|校验十五\|校验十六\|校验十八\|校验二十五\|截图交叉验证" references/04-verification.md
+
+# 图表类型
+grep -n "图表类型\|Stacked\|Bar\|Line" references/02-workflow-main.md
+
+# 读取深度
+grep -n "readDepth\|读取深度" references/05-tools-guide.md
+
+# 状态字段
+grep -n "enabled\|visible\|状态字段" references/02-workflow-main.md
+
+# 左右布局
+grep -n "左右布局\|宽度比例\|固定宽度" references/02-workflow-main.md
+```

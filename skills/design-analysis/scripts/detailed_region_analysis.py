@@ -136,7 +136,7 @@ def parse_node_full(node: dict, styles: dict, depth: int = 0, parent_x: float = 
 
 
 def find_all_texts(node: dict, texts: list, max_depth: int = 10):
-    """收集所有文字节点"""
+    """收集所有文字节点（包括 INSTANCE 组件内部）"""
     if node.get('text') and node['text'].get('content'):
         texts.append({
             'content': node['text']['content'],
@@ -151,6 +151,62 @@ def find_all_texts(node: dict, texts: list, max_depth: int = 10):
     if node.get('depth', 0) < max_depth:
         for child in node.get('children', []):
             find_all_texts(child, texts, max_depth)
+
+
+def extract_instance_texts(instance_node: dict, texts: list, styles: dict, depth: int = 0, max_depth: int = 6):
+    """
+    ⚠️ 关键函数：从 INSTANCE 组件内部提取所有文字
+
+    MasterGo 的实际内容存储在 INSTANCE 组件内部，不在顶层 GROUP 节点！
+    必须递归遍历 INSTANCE 内部才能提取到标题、选择器、Tab 等元素的文字。
+    """
+    if depth > max_depth:
+        return
+
+    # 处理 INSTANCE 节点的直接 children
+    children = instance_node.get('children', [])
+
+    for child in children:
+        child_type = child.get('type', '')
+
+        # 如果是 TEXT 节点，提取文字
+        if child_type == 'TEXT':
+            text_field = child.get('text', [])
+            if text_field and len(text_field) > 0:
+                text_content = text_field[0].get('text', '')
+                if text_content:
+                    layout_style = child.get('layoutStyle', {})
+                    font_ref = text_field[0].get('font', '')
+                    font_info = {}
+                    if font_ref and font_ref in styles:
+                        font_style = styles[font_ref]
+                        if isinstance(font_style, dict):
+                            font_info['font_family'] = font_style.get('family', 'Source Han Sans')
+                            font_info['font_size'] = font_style.get('size', 14)
+
+                    texts.append({
+                        'content': text_content,
+                        'font_size': font_info.get('font_size', 14),
+                        'font_family': font_info.get('font_family', 'Source Han Sans'),
+                        'x': layout_style.get('relativeX', 0),
+                        'y': layout_style.get('relativeY', 0),
+                        'node_name': child.get('name', ''),
+                        'node_id': child.get('id', ''),
+                        'from_instance': True,  # 标记来自 INSTANCE 内部
+                    })
+
+        # 递归处理嵌套的 GROUP/FRAME/INSTANCE
+        if child.get('children'):
+            extract_instance_texts(child, texts, styles, depth + 1, max_depth)
+
+
+def find_instance_nodes(region_node: dict) -> list:
+    """识别区域内的所有 INSTANCE 节点"""
+    instance_nodes = []
+    for child in region_node.get('children', []):
+        if child.get('type') == 'INSTANCE':
+            instance_nodes.append(child)
+    return instance_nodes
 
 
 def find_chart_nodes(node: dict, charts: list, max_depth: int = 10):
@@ -322,7 +378,7 @@ def find_common_components(node: dict, components: dict, max_depth: int = 6, dep
         find_common_components(child, components, max_depth, depth + 1)
 
 
-def analyze_region(region_node: dict, styles: dict) -> dict:
+def analyze_region(region_node: dict, styles: dict, raw_node: dict = None) -> dict:
     """分析单个区域的详细信息"""
     result = {
         'id': region_node.get('id', ''),
@@ -330,8 +386,10 @@ def analyze_region(region_node: dict, styles: dict) -> dict:
         'type': region_node.get('type', ''),
         'layout': region_node.get('layout', {}),
         'texts': [],
+        'instance_texts': [],  # ⚠️ 新增：INSTANCE 组件内部的文字
         'charts': [],
         'children_summary': [],
+        'instance_nodes': [],  # ⚠️ 新增：INSTANCE 节点列表
         'common_components': {
             'tabs': [],
             'legends': [],
@@ -342,6 +400,27 @@ def analyze_region(region_node: dict, styles: dict) -> dict:
 
     # 收集文字节点
     find_all_texts(region_node, result['texts'], max_depth=6)
+
+    # ⚠️ 关键步骤：识别并提取 INSTANCE 组件内部文字
+    if raw_node:
+        instance_nodes = find_instance_nodes(raw_node)
+        result['instance_nodes'] = [
+            {
+                'id': inst.get('id', ''),
+                'name': inst.get('name', ''),
+            }
+            for inst in instance_nodes
+        ]
+
+        for instance in instance_nodes:
+            extract_instance_texts(instance, result['instance_texts'], styles, max_depth=6)
+
+        # 合并 INSTANCE 内部文字到主文字列表（避免重复）
+        existing_contents = {t.get('content', '') for t in result['texts']}
+        for inst_text in result['instance_texts']:
+            if inst_text.get('content') and inst_text['content'] not in existing_contents:
+                result['texts'].append(inst_text)
+                existing_contents.add(inst_text['content'])
 
     # 收集图表节点
     find_chart_nodes(region_node, result['charts'], max_depth=6)
@@ -404,7 +483,9 @@ def main():
         if region_index is not None and i != region_index:
             continue
 
-        analysis = analyze_region(region, styles)
+        # ⚠️ 传入原始节点数据以便提取 INSTANCE 内部文字
+        raw_region = root_node.get('children', [])[i] if i < len(root_node.get('children', [])) else None
+        analysis = analyze_region(region, styles, raw_region)
         output['regions'].append(analysis)
 
     # 输出到文件
