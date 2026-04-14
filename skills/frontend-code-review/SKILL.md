@@ -3,6 +3,7 @@ name: frontend-code-review
 description: 此技能用于前端代码审查。当用户请求代码审查、运行 /frontend-code-review 命令、提交前检查代码、或进行 npm 安全审计时触发。审查代码质量、类型安全、Vue 最佳实践、样式规范、npm 包安全，输出结构化审查报告。
 metadata:
   version: 1.2.0
+  updatedAt: 2026-03-26
 ---
 # 前端代码审查
 
