@@ -6,7 +6,7 @@ Claude Code 技能仓库，提供可复用的自动化工作流。
 
 | 技能 | 版本 | 说明 |
 |------|------|------|
-| [design-analysis](#design-analysis) | 1.23.0 | 设计稿分析，产出 UI 分析清单 |
+| [design-analysis](#design-analysis) | 1.26.1 | 设计稿分析，产出 UI 分析清单 |
 | [frontend-code-review](#frontend-code-review) | 1.2.0 | 前端代码审查，输出结构化报告 |
 
 ---
