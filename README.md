@@ -148,6 +148,68 @@ cp -r skills/design-analysis ~/.claude/skills/
 
 ---
 
+## 更新技能
+
+### 方法一：网络更新（推荐）
+
+使用 `npx skills update` 更新已安装的技能：
+
+```bash
+# 更新 design-analysis 技能
+npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/design-analysis
+
+# 更新 frontend-code-review 技能
+npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/frontend-code-review
+
+# 更新 build-frontend-zip 技能
+npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/build-frontend-zip
+
+# 更新 git-commit 技能
+npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/git-commit
+```
+
+### 方法二：手动更新
+
+重新复制技能文件夹覆盖原有文件：
+
+```bash
+# 更新 design-analysis 技能
+cp -r skills/design-analysis /path/to/your/project/.claude/skills/
+
+# 更新 frontend-code-review 技能
+cp -r skills/frontend-code-review /path/to/your/project/.claude/skills/
+
+# 更新 build-frontend-zip 技能
+cp -r skills/build-frontend-zip /path/to/your/project/.claude/skills/
+
+# 更新 git-commit 技能
+cp -r skills/git-commit /path/to/your/project/.claude/skills/
+```
+
+### 方法三：全局更新
+
+```bash
+# Windows
+cp -r skills/design-analysis %USERPROFILE%\.claude\skills\
+
+# macOS / Linux
+cp -r skills/design-analysis ~/.claude/skills/
+```
+
+### 查看版本信息
+
+技能版本信息存储在 SKILL.md 的 frontmatter 中：
+
+```yaml
+---
+metadata:
+  version: 1.x.x
+  updatedAt: YYYY-MM-DD
+---
+```
+
+---
+
 ## 目录结构
 
 ```
@@ -181,3 +243,18 @@ agent-skills/
 
 - [Claude Code 技能开发指南](https://docs.anthropic.com/claude-code/skills)
 - [提交问题或建议](https://github.com/anthropics/claude-code/issues)
+
+---
+
+## 附录
+
+### 1. 核心命令速查
+
+| 命令 | 作用 |
+|------|------|
+| `npx skills add <来源>` | 安装技能包（GitHub 短名/URL/本地路径） |
+| `npx skills find [关键词]` | 搜索可用技能 |
+| `npx skills list` | 列出已安装技能 |
+| `npx skills update` | 更新所有技能 |
+| `npx skills remove <技能名>` | 移除指定技能 |
+| `npx skills init <名称>` | 创建新技能模板 |
