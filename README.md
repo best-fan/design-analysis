@@ -9,7 +9,7 @@ Claude Code 技能仓库，提供可复用的自动化工作流。
 | [design-analysis](#design-analysis) | 1.26.1 | 设计稿分析，产出 UI 分析清单 |
 | [frontend-code-review](#frontend-code-review) | 1.2.0 | 前端代码审查，输出结构化报告 |
 | [build-frontend-zip](#build-frontend-zip) | 1.0.0 | 前端项目打包，生成 zip 分发包 |
-| [git-commit](#git-commit) | 1.1.0 | Git 提交，生成规范 commit 消息 |
+| [git-commit](#git-commit) | 1.3.0 | Git 提交，生成规范 commit 消息 |
 
 ---
 
@@ -66,6 +66,9 @@ Claude Code 技能仓库，提供可复用的自动化工作流。
 Git 提交技能，生成符合项目规范的 commit 消息。
 
 **核心功能：**
+- 检查仓库结构（主仓库、子仓库、子模块）
+- 确认修改目录范围
+- 拉取远程代码确保同步
 - 分析 git 变更内容
 - 根据项目 commit 风格生成多个候选消息
 - 用户选择确认后执行提交
