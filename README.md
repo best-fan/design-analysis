@@ -8,6 +8,7 @@ Claude Code 技能仓库，提供可复用的自动化工作流。
 |------|------|------|
 | [design-analysis](#design-analysis) | 1.26.1 | 设计稿分析，产出 UI 分析清单 |
 | [frontend-code-review](#frontend-code-review) | 1.2.0 | 前端代码审查，输出结构化报告 |
+| [frontend-rules-generator](#frontend-rules-generator) | 1.0.0 | 前端规范生成，创建 Claude Rules 文件 |
 | [build-frontend-zip](#build-frontend-zip) | 1.0.0 | 前端项目打包，生成 zip 分发包 |
 | [git-commit](#git-commit) | 1.3.0 | Git 提交，生成规范 commit 消息 |
 
@@ -42,6 +43,23 @@ Claude Code 技能仓库，提供可复用的自动化工作流。
 **使用方式：** `/frontend-code-review`
 
 **详细文档：** [doc/frontend-code-review.md](doc/frontend-code-review.md)
+
+---
+
+### frontend-rules-generator
+
+前端规范生成技能，分析项目代码结构，自动生成 `.claude/rules/` 开发规范文件。
+
+**核心功能：**
+- 自动检测项目类型（Vue/React）
+- 扫描项目目录结构，识别关键模块
+- 提取代码命名模式和目录组织方式
+- 根据项目实际代码生成开发规范
+- 生成符合 Claude Code 规范的 rules 文件
+
+**使用方式：** `/frontend-rules-generator`
+
+**详细文档：** [doc/frontend-rules-generator.md](doc/frontend-rules-generator.md)
 
 ---
 
@@ -98,6 +116,9 @@ npx skills add https://github.com/best-fan/agent-skills/tree/main/skills/build-f
 
 # 安装 git-commit 技能
 npx skills add https://github.com/best-fan/agent-skills/tree/main/skills/git-commit
+
+# 安装 frontend-rules-generator 技能
+npx skills add https://github.com/best-fan/agent-skills/tree/main/skills/frontend-rules-generator
 ```
 
 ### 方法二：复制到项目
@@ -116,6 +137,9 @@ cp -r skills/build-frontend-zip /path/to/your/project/.claude/skills/
 
 # 安装 git-commit 技能
 cp -r skills/git-commit /path/to/your/project/.claude/skills/
+
+# 安装 frontend-rules-generator 技能
+cp -r skills/frontend-rules-generator /path/to/your/project/.claude/skills/
 ```
 
 ### 方法三：全局安装
@@ -166,6 +190,9 @@ npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/buil
 
 # 更新 git-commit 技能
 npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/git-commit
+
+# 更新 frontend-rules-generator 技能
+npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/frontend-rules-generator
 ```
 
 ### 方法二：手动更新
@@ -184,6 +211,9 @@ cp -r skills/build-frontend-zip /path/to/your/project/.claude/skills/
 
 # 更新 git-commit 技能
 cp -r skills/git-commit /path/to/your/project/.claude/skills/
+
+# 更新 frontend-rules-generator 技能
+cp -r skills/frontend-rules-generator /path/to/your/project/.claude/skills/
 ```
 
 ### 方法三：全局更新
@@ -219,6 +249,7 @@ agent-skills/
 ├── doc/                         # 详细文档
 │   ├── design-analysis.md       # 设计稿分析技能详细文档
 │   ├── frontend-code-review.md  # 前端代码审查技能详细文档
+│   ├── frontend-rules-generator.md  # 前端规范生成技能详细文档
 │   ├── build-frontend-zip.md    # 前端打包技能详细文档
 │   └── git-commit.md            # Git 提交技能详细文档
 └── skills/                      # 技能定义
@@ -230,6 +261,10 @@ agent-skills/
     ├── frontend-code-review/
     │   ├── SKILL.md             # 技能入口
     │   └── references/          # 参考文档
+    ├── frontend-rules-generator/
+    │   ├── SKILL.md             # 技能入口
+    │   ├── references/          # 参考文档（模板）
+    │   └── scripts/             # 工具脚本
     ├── build-frontend-zip/
     │   ├── SKILL.md             # 技能入口
     │   └── scripts/             # 工具脚本
