@@ -11,6 +11,7 @@ Claude Code 技能仓库，提供可复用的自动化工作流。
 | [frontend-rules-generator](#frontend-rules-generator) | 1.0.0 | 前端规范生成，创建 Claude Rules 文件 |
 | [build-frontend-zip](#build-frontend-zip) | 1.0.0 | 前端项目打包，生成 zip 分发包 |
 | [git-commit](#git-commit) | 1.3.0 | Git 提交，生成规范 commit 消息 |
+| [daily-report](#daily-report) | 1.0.0 | 工作日报，从 Git 提交生成日报 |
 
 ---
 
@@ -98,6 +99,23 @@ Git 提交技能，生成符合项目规范的 commit 消息。
 
 ---
 
+### daily-report
+
+工作日报生成技能，从 Git 提交记录自动生成交互式日报。
+
+**核心功能：**
+- 获取 Git 用户信息
+- 支持今天、昨天、自定义日期统计
+- 按项目 scope 分组提交记录
+- 可选统计信息（提交次数、新增/删除行数）
+- 输出标准化日报格式
+
+**使用方式：** `/daily-report`
+
+**详细文档：** [doc/daily-report.md](doc/daily-report.md)
+
+---
+
 ## 安装说明
 
 ### 方法一：网络拉取（推荐）
@@ -119,6 +137,9 @@ npx skills add https://github.com/best-fan/agent-skills/tree/main/skills/git-com
 
 # 安装 frontend-rules-generator 技能
 npx skills add https://github.com/best-fan/agent-skills/tree/main/skills/frontend-rules-generator
+
+# 安装 daily-report 技能
+npx skills add https://github.com/best-fan/agent-skills/tree/main/skills/daily-report
 ```
 
 ### 方法二：复制到项目
@@ -140,6 +161,9 @@ cp -r skills/git-commit /path/to/your/project/.claude/skills/
 
 # 安装 frontend-rules-generator 技能
 cp -r skills/frontend-rules-generator /path/to/your/project/.claude/skills/
+
+# 安装 daily-report 技能
+cp -r skills/daily-report /path/to/your/project/.claude/skills/
 ```
 
 ### 方法三：全局安装
@@ -193,6 +217,9 @@ npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/git-
 
 # 更新 frontend-rules-generator 技能
 npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/frontend-rules-generator
+
+# 更新 daily-report 技能
+npx skills update https://github.com/best-fan/agent-skills/tree/main/skills/daily-report
 ```
 
 ### 方法二：手动更新
@@ -214,6 +241,9 @@ cp -r skills/git-commit /path/to/your/project/.claude/skills/
 
 # 更新 frontend-rules-generator 技能
 cp -r skills/frontend-rules-generator /path/to/your/project/.claude/skills/
+
+# 更新 daily-report 技能
+cp -r skills/daily-report /path/to/your/project/.claude/skills/
 ```
 
 ### 方法三：全局更新
@@ -251,7 +281,8 @@ agent-skills/
 │   ├── frontend-code-review.md  # 前端代码审查技能详细文档
 │   ├── frontend-rules-generator.md  # 前端规范生成技能详细文档
 │   ├── build-frontend-zip.md    # 前端打包技能详细文档
-│   └── git-commit.md            # Git 提交技能详细文档
+│   ├── git-commit.md            # Git 提交技能详细文档
+│   └── daily-report.md          # 工作日报技能详细文档
 └── skills/                      # 技能定义
     ├── design-analysis/
     │   ├── SKILL.md             # 技能入口
@@ -268,7 +299,9 @@ agent-skills/
     ├── build-frontend-zip/
     │   ├── SKILL.md             # 技能入口
     │   └── scripts/             # 工具脚本
-    └── git-commit/
+    ├── git-commit/
+    │   └── SKILL.md             # 技能入口
+    └── daily-report/
         └── SKILL.md             # 技能入口
 ```
 
