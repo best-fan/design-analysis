@@ -310,7 +310,7 @@ agent-skills/
 ## 扩展阅读
 
 - [Claude Code 技能开发指南](https://docs.anthropic.com/claude-code/skills)
-- [提交问题或建议](https://github.com/anthropics/claude-code/issues)
+- [提交问题或建议](https://github.com/best-fan/agent-skills/issues)
 
 ---
 
